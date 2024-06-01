@@ -172,7 +172,7 @@ Make sure to install all the packages needed to avoid problems.
 
 
 Authors
-Kleyn (neilivanbatalla@gmail.com)
+Kinu (keenufestin@gmail.com)
 
 License
 This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
