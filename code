@@ -1,13 +1,16 @@
-// SPDX-License-Identifier: MIT 
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol"; 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 // ERC20 contract with mint, burn, transfer, redeem, and check balance functionality
 contract DegenToken is ERC20, Ownable {
     // Mapping to store the prices of each item
     mapping(uint256 => Item) public items;
+    
+    // Mapping to store the items owned by each player
+    mapping(address => mapping(uint256 => uint256)) public playerItems;
 
     // Struct to define each item
     struct Item {
@@ -51,15 +54,23 @@ contract DegenToken is ERC20, Ownable {
         require(item.price > 0, "Item not available for redemption");
         require(balanceOf(msg.sender) >= item.price, "Insufficient balance");
 
-        // Prompt the user to exchange their reward for the item name
-        emit RewardExchangePrompt(msg.sender, itemId, item.name);
-
-        // Perform the burn
+        // Burn the tokens for the item
         _burn(msg.sender, item.price);
+
+        // Record the redeemed item for the player
+        playerItems[msg.sender][itemId] += 1;
+
+        // Emit event to notify of item redemption
+        emit ItemRedeemed(msg.sender, itemId, item.name);
     }
 
-    // Event to prompt the user for reward exchange
-    event RewardExchangePrompt(address indexed player, uint256 itemId, string itemName);
+    // Function to get the quantity of a specific item owned by a player
+    function getPlayerItemQuantity(address player, uint256 itemId) public view returns (uint256) {
+        return playerItems[player][itemId];
+    }
+
+    // Event to notify when an item is redeemed
+    event ItemRedeemed(address indexed player, uint256 itemId, string itemName);
 
     // Overridden balanceOf function to get the balance of an account
     function balanceOf(address account) public view override returns (uint256) {
